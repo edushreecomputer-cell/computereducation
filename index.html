@@ -387,7 +387,7 @@
         .playlist-search i { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); font-size: 0.7rem; color: var(--text-muted); }
         .filter-btn { background: rgba(10, 15, 28, 0.6); border: 1px solid var(--bg-card-border); color: var(--text-muted); width: 30px; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
 
-        .playlist-items { display: flex; flex-direction: column; gap: 8px; max-height: 380px; overflow-y: auto; }
+        .playlist-items { display: flex; flex-direction: column; gap: 8px; max-height: 420px; overflow-y: auto; }
         .playlist-item {
             display: flex;
             align-items: center;
@@ -411,6 +411,7 @@
             align-items: center;
             justify-content: center;
             font-size: 0.7rem;
+            flex-shrink: 0;
         }
 
         .playlist-item.active .item-icon { background: var(--primary-blue); color: white; }
@@ -692,7 +693,7 @@
             <header class="top-navbar">
                 <div class="search-bar">
                     <i class="fa-solid fa-magnifying-glass"></i>
-                    <input type="text" placeholder="Search for courses, lessons...">
+                    <input type="text" id="searchInput" oninput="filterLessons()" placeholder="Search for courses, lessons...">
                 </div>
 
                 <div class="top-nav-right">
@@ -725,11 +726,11 @@
                     <!-- VIDEO PLAYER CONTAINER USING IFRAME -->
                     <div class="video-container">
                         <div class="video-screen">
-                            <iframe id="mainVideo" src="https://drive.google.com/file/d/1u-BPqh6mzUB6RLi8xOJLQMBp7dokiXtF/preview" allow="autoplay"></iframe>
+                            <iframe id="mainVideo" src="https://drive.google.com/file/d/17uK8lylzBCK2mh2-6ytjsis3xCsvCkxh/preview" allow="autoplay" allowfullscreen></iframe>
                         </div>
                         <div class="video-info">
-                            <h2 class="video-title" id="videoTitle">7. Video Lesson 7</h2>
-                            <p class="video-subtitle" id="videoDesc">Advanced Tutorial Part 7</p>
+                            <h2 class="video-title" id="videoTitle">1. Video Lesson 1</h2>
+                            <p class="video-subtitle" id="videoDesc">Computer Education Course - Lesson 1</p>
 
                             <div class="action-buttons">
                                 <button class="btn-action"><i class="fa-regular fa-thumbs-up"></i> Like <span style="color:var(--text-muted); margin-left:4px;">125</span></button>
@@ -763,9 +764,9 @@
                             </div>
                             <div class="progress-details">
                                 <h5>Course Progress</h5>
-                                <p>7 / 10 Lessons Completed</p>
+                                <p id="progressText">1 / 48 Lessons Completed</p>
                                 <div class="progress-bar-bg">
-                                    <div class="progress-bar-fill"></div>
+                                    <div class="progress-bar-fill" id="progressBar"></div>
                                 </div>
                             </div>
                         </div>
@@ -773,13 +774,13 @@
                         <div class="playlist-filter">
                             <div class="playlist-search">
                                 <i class="fa-solid fa-magnifying-glass"></i>
-                                <input type="text" placeholder="Search lessons...">
+                                <input type="text" id="playlistSearch" oninput="filterLessons()" placeholder="Search lessons...">
                             </div>
                             <button class="filter-btn"><i class="fa-solid fa-sliders"></i></button>
                         </div>
 
                         <div class="playlist-items" id="playlistContainer">
-                            <!-- Items populated by JS -->
+                            <!-- 48 Items populated by JS -->
                         </div>
 
                         <button class="btn-view-all">View All Lessons</button>
@@ -824,7 +825,7 @@
                                     <div class="widget-icon" style="color:var(--accent-green);"><i class="fa-solid fa-circle-check"></i></div>
                                     <div class="widget-text">
                                         <h6>You completed</h6>
-                                        <p style="color:white;">Video 7</p>
+                                        <p style="color:white;">Video 1</p>
                                     </div>
                                 </div>
                                 <div class="widget-time">
@@ -918,44 +919,57 @@
             "student": "123456"
         };
 
-        // Google Drive Video Lessons Data
-        const lessons = [
-            { 
-                title: "7. Lesson 7 - Advanced Topics", 
-                desc: "Part 7 of the course.", 
-                embedUrl: "https://drive.google.com/file/d/1u-BPqh6mzUB6RLi8xOJLQMBp7dokiXtF/preview" 
-            },
-            { 
-                title: "8. Lesson 8 - Advanced Topics", 
-                desc: "Part 8 of the course.", 
-                embedUrl: "https://drive.google.com/file/d/1jDXd5FI-u-SHzWDqWXf3MAjoEtUI4b4m/preview" 
-            },
-            { 
-                title: "9. Lesson 9 - Advanced Topics", 
-                desc: "Part 9 of the course.", 
-                embedUrl: "https://drive.google.com/file/d/1v8yNlJ1vfEhI544dFomxX645J26IIlP0/preview" 
-            },
-            { 
-                title: "10. Lesson 10 - Advanced Topics", 
-                desc: "Part 10 of the course.", 
-                embedUrl: "https://drive.google.com/file/d/1td9RYbDYtYQojySSCTcer5914v5cMtTb/preview" 
-            }
+        // All 48 Google Drive Video Lessons Data
+        const videoIds = [
+            "17uK8lylzBCK2mh2-6ytjsis3xCsvCkxh", "1hMFM5XlUrVnmgBkZXhmrssKYDsDTnp7T",
+            "1bZv7eZN-N60Ej-RC58uWiMs6XPsWXtmr", "1ilh66gnoKzW0L27FS4HyOpEGoP2JGwIM",
+            "1_7quzaNmdiTImCRztzuYKCTuOv8REAg4", "1Y83gXaZwrV_1W21dSNPAZ1KckABWOBZ3",
+            "1aHCtAXKdONDHXa_zVwSaRmh8-DBVyzIB", "1HR2WI1QwM3ZDVoMGpKqttemZ6kyLcnpJ",
+            "1QoEakwv0qxKQvi4PeqBb5ydTy4icbTEa", "1ypdAW_eUWZb3zN4uBU7-toCc6TfURUVJ",
+            "1bU3khKquj_2iyPlquTR-C9h1jTYxSyq4", "1FmeyK5CDfbLbISnVVG2lCgzTeoOmEei5",
+            "1l7jruANvVEo0w1ErsSUcHDj3T0o2ndUQ", "1F07FrD_4F5ugOuvYtpMMUmY9kbS3zvUu",
+            "1VilKFB2OluZX74UdMuisNEf567ABxA48", "1YxjhHV6r45ac9CGTlT-KI_FTkW86CphT",
+            "1Ey-EGDaaGMY3Oej9xuBdJCe0zUu11axH", "14bYy8EIIbbNN2Xfd2epG37PrS0umgpus",
+            "1TEW9ZSnA9fnM3Izkps-R38RYLm7opRuJ", "1_lriYSjFO7H5AQP3IwBwOOHzOcPZGn-n",
+            "1FF5W6ldkVdmeL_AC7ooX1ypDoDlllpFM", "1Oj_t3Y3jNwIkSzQU5c33Pr65fn6m0GSJ",
+            "1UftZmuQHRyhvVCgp-N-1XxkT8Oo21bDc", "1aZAgkaw7jN3QGRRW0nkTjGRg8eljqWrH",
+            "1dEPZGIVhoTSYISduJPRowUqxEMT-AY76", "1aVc7Tq9WE2A5AA_X5WPt2K4aXyKqdVGY",
+            "1mLvc2pqbzGeLJU8LosEItxg2Q2LVgsZs", "1BhxcwUIbyo3dOQFyuJd26N3DNvbi1ZJ-",
+            "1ojs1sph4v7NDr_jwqWcpeHxGhTVTPh98", "1taFylHSDqVZa0QpBgYa4h549QUrt3c8E",
+            "1-oreMRY86vJO-5Ge_rR4WOcr8MlMva-0", "1SqKYbWhmY6j0krCsfGklr8PDx154qm4L",
+            "1GQBZ-9EAu2_JGQ5eeBAqclKaDKX5jxGN", "1AQmfIcIB8hnUJXyJNWf1BjL5_EO-H8AW",
+            "1s7A736oNAIV4r5A4JtvIdOchd9svxonv", "1gT80HkVAEdEg-O7EOIjLF3wsBRRoy26X",
+            "16Dj_n3L6tpy8laEPdn8-dmgO9oksvMRt", "1_X5kuZy_w0ynRiUw0Bs9vUtmPLZ4XdUz",
+            "18ATMsUK7LWd2Meo1qSM65Lmp8G_2dpvO", "1yVFYGzoRS7Vpo-rTl5rf-HTXMsHnAWCd",
+            "1-oV-TILhp54INZ4n5uDYNIdhG0ATTdpS", "1CdbuNjA4SjEMEQRbZo3GLrkWQFTTWilB",
+            "1ASRSokgLp01qco3xXoKAneKtEomNli7g", "1znElNJzMFcOpNCN8JxNQvee_bjpnD7I0",
+            "1uX3mLCgprvlzUifhw1xha0QA4D_XW65f", "1VWF27FLz4Zd1YmLxh0HtJrdT_LZ87RWB",
+            "1gSGMwFWebNx5SuW9ENcBQF4SqbUadlN6", "1bIknYLG7vfrEHSF702LCEZ_9JrwMTdUx"
         ];
 
-        function renderPlaylist() {
+        const lessons = videoIds.map((id, index) => ({
+            title: `${index + 1}. Video Lesson ${index + 1}`,
+            desc: `Computer Education Course - Lesson ${index + 1}`,
+            embedUrl: `https://drive.google.com/file/d/${id}/preview`
+        }));
+
+        let activeLessonIndex = 0;
+
+        function renderPlaylist(filteredLessons = lessons) {
             const container = document.getElementById('playlistContainer');
             container.innerHTML = '';
             
-            lessons.forEach((lesson, index) => {
-                const isActive = index === 0 ? 'active' : '';
-                const tag = index === 0 ? '<span class="item-tag tag-now">▶ Now</span>' : '';
+            filteredLessons.forEach((lesson) => {
+                const originalIndex = lessons.findIndex(l => l.embedUrl === lesson.embedUrl);
+                const isActive = originalIndex === activeLessonIndex ? 'active' : '';
+                const tag = originalIndex === activeLessonIndex ? '<span class="item-tag tag-now">▶ Now</span>' : '';
                 
                 const itemHtml = `
-                    <div class="playlist-item ${isActive}" onclick="playLesson(${index})">
+                    <div class="playlist-item ${isActive}" onclick="playLesson(${originalIndex})">
                         <div class="item-icon"><i class="fa-solid fa-play"></i></div>
                         <div class="item-text">
                             <h6>${lesson.title}</h6>
-                            <p>Lesson ${index + 7}</p>
+                            <p>Lesson ${originalIndex + 1}</p>
                         </div>
                         ${tag}
                     </div>
@@ -965,6 +979,7 @@
         }
 
         function playLesson(index) {
+            activeLessonIndex = index;
             const iframe = document.getElementById('mainVideo');
             const videoTitle = document.getElementById('videoTitle');
             const videoDesc = document.getElementById('videoDesc');
@@ -973,14 +988,26 @@
             videoDesc.innerText = lessons[index].desc;
             iframe.src = lessons[index].embedUrl;
 
-            const items = document.querySelectorAll('.playlist-item');
-            items.forEach((item, i) => {
-                if(i === index) {
-                    item.classList.add('active');
-                } else {
-                    item.classList.remove('active');
-                }
-            });
+            // Update Progress UI
+            const percent = Math.round(((index + 1) / lessons.length) * 100);
+            document.querySelector('.circle-text').innerText = `${percent}%`;
+            document.querySelector('.circle-progress').style.background = `conic-gradient(var(--primary-blue) ${percent * 3.6}deg, #1e293b 0deg)`;
+            document.getElementById('progressText').innerText = `${index + 1} / ${lessons.length} Lessons Completed`;
+            document.getElementById('progressBar').style.width = `${percent}%`;
+
+            renderPlaylist();
+        }
+
+        function filterLessons() {
+            const query1 = document.getElementById('playlistSearch').value.toLowerCase();
+            const query2 = document.getElementById('searchInput').value.toLowerCase();
+            const query = query1 || query2;
+
+            const filtered = lessons.filter(lesson => 
+                lesson.title.toLowerCase().includes(query) || 
+                lesson.desc.toLowerCase().includes(query)
+            );
+            renderPlaylist(filtered);
         }
 
         function showSignUp() {
